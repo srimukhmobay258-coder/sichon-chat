@@ -1,4 +1,114 @@
-ๆฃ  }
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สิชลแชท | วิทยาลัยเทคนิคสิชล</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    onAuthStateChanged, signOut, updatePassword
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc,
+    deleteDoc, onSnapshot, query, where, orderBy, serverTimestamp, Timestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDfaADyfIJMIbmraAifzo3kyD9xzNwDST8",
+    authDomain: "sichon-1.firebaseapp.com",
+    projectId: "sichon-1",
+    storageBucket: "sichon-1.firebasestorage.app",
+    messagingSenderId: "98346797703",
+    appId: "1:98346797703:web:630c274f7d99b56e858622",
+    measurementId: "G-CPTCBZ7TLZ"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+
+  // เปิดให้โค้ดส่วนที่เหลือ (ที่เป็น script ปกติ ไม่ใช่ module) เรียกใช้ได้ผ่าน window
+  window.fb = {
+    auth, db,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword,
+    doc, getDoc, setDoc, updateDoc, collection, addDoc, deleteDoc, onSnapshot, query, where, orderBy, serverTimestamp, Timestamp
+  };
+  window.dispatchEvent(new Event('fb-ready'));
+</script>
+<style>
+  :root{
+    --bg:#EAF3FF;
+    --bg-deep:#DCEBFF;
+    --surface:#FFFFFF;
+    --ink:#0E2A47;
+    --ink-soft:#4A6584;
+    --line:#CBDFFA;
+    --blue:#0B5FFF;
+    --blue-deep:#063FAD;
+
+    --d1:#E8782C; --d1-soft:#FFF1E6; /* ช่างกลโรงงาน - ส้มเหล็ก */
+    --d2:#E0B400; --d2-soft:#FFF9DD; /* ไฟฟ้ากำลัง - เหลืองไฟ */
+    --d3:#C1502E; --d3-soft:#FBEAE3; /* ก่อสร้าง - ส้มอิฐ */
+    --d4:#1E8F5E; --d4-soft:#E6F7EF; /* บัญชี - เขียวเงิน */
+    --d5:#9C4FAE; --d5-soft:#F6E9F9; /* โรงแรม - ม่วงทอง */
+    --d6:#1AA3C9; --d6-soft:#E3F7FC; /* ดิจิทัล - ฟ้าไซเบอร์ */
+    --d7:#D6422F; --d7-soft:#FBE6E2; /* ช่างยนต์ - แดงเครื่องยนต์ */
+    --d8:#F2A30F; --d8-soft:#FFF3DC; /* ช่างเชื่อม - ส้มประกายไฟ */
+    --d9:#2E9E6B; --d9-soft:#E8F8EF; /* อิเล็กทรอนิกส์ - เขียว PCB */
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    height:100%;
+    font-family:'Sarabun',sans-serif;
+    background: radial-gradient(ellipse 1400px 700px at 85% -5%, #C9DEFF, var(--bg) 55%), radial-gradient(ellipse 800px 600px at 5% 100%, #DDE8FF, transparent);
+    color:var(--ink);
+  }
+  h1,h2,h3,.brand,.btn,.dept-name,.dept-code{font-family:'Kanit',sans-serif;}
+  #app{min-height:100vh; display:flex; flex-direction:column;}
+  .hidden{display:none !important;}
+  button{cursor:pointer; border:none; font-family:inherit;}
+  input{font-family:inherit;}
+
+  /* ---------- LOGIN ---------- */
+  .login-wrap{
+    flex:1; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:420px; background:var(--surface);
+    border-radius:20px; padding:40px 32px;
+    border:1px solid var(--line);
+    box-shadow:0 20px 60px -20px rgba(11,95,255,.25);
+    position:relative; overflow:hidden;
+  }
+  .login-card::before{
+    content:""; position:absolute; top:-60px; right:-60px; width:160px; height:160px;
+    background:var(--blue); opacity:.08; border-radius:50%;
+  }
+  .login-mark{
+    width:56px; height:56px; border-radius:14px; background:var(--blue);
+    display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+    box-shadow:0 8px 20px -6px rgba(11,95,255,.6);
+  }
+  .login-mark svg{width:30px; height:30px;}
+  .login-card h1{font-size:24px; font-weight:800; color:var(--ink); line-height:1.3;}
+  .login-card .sub{color:var(--ink-soft); font-size:14px; margin-top:6px; margin-bottom:26px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:6px;}
+  .field input{
+    width:100%; padding:13px 14px; border-radius:12px; border:1.5px solid var(--line);
+    font-size:15px; background:#F8FBFF; color:var(--ink); transition:.15s;
+  }
+  .field input:focus{outline:none; border-color:var(--blue); background:#fff; box-shadow:0 0 0 4px rgba(11,95,255,.1);}
+  .field select.rg-select{
+    width:100%; padding:13px 14px; border-radius:12px; border:1.5px solid var(--line);
+    font-size:15px; background:#F8FBFF; color:var(--ink); transition:.15s; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234A6584' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center;
+  }
   .field select.rg-select:focus{outline:none; border-color:var(--blue); background-color:#fff; box-shadow:0 0 0 4px rgba(11,95,255,.1);}
   .idcard-upload{
     border:1.5px dashed var(--line); border-radius:12px; background:#F8FBFF;
@@ -305,167 +415,7 @@
 
   /* ---------- ABOUT MODAL ---------- */
   .modal-overlay{
-    display:none; position:fixed; inset:0; background:rgba(10,30,60,.55);
-    backdrop-filter:blur(4px); z-index:100; align-items:center; justify-content:center;
-    animation:fadeIn .2s ease;
-  }
-  .modal-overlay.show{display:flex;}
-  @keyframes fadeIn{from{opacity:0} to{opacity:1}}
-  .modal-card{
-    background:#fff; border-radius:22px; padding:36px 32px; max-width:520px; width:calc(100% - 32px);
-    box-shadow:0 30px 80px -20px rgba(11,95,255,.3); position:relative;
-    animation:slideUp .3s cubic-bezier(.22,1,.36,1);
-  }
-  @keyframes slideUp{from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)}}
-  .modal-close{
-    position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:50%;
-    background:#EEF4FF; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    color:var(--ink-soft); font-size:18px; transition:.15s;
-  }
-  .modal-close:hover{background:#DCEBFF; color:var(--ink);}
-  .modal-logo{
-    width:56px; height:56px; border-radius:14px; overflow:hidden; margin-bottom:16px;
-    background:#fff; border:1px solid var(--line); padding:4px;
-  }
-  .modal-logo img{width:100%; height:100%; object-fit:contain;}
-  .modal-card h2{font-size:22px; font-weight:800; color:var(--ink); margin-bottom:6px;}
-  .modal-card .modal-sub{color:var(--ink-soft); font-size:14px; margin-bottom:20px;}
-  .modal-section{margin-bottom:16px;}
-  .modal-section h3{font-size:13px; font-weight:700; color:var(--blue); letter-spacing:.06em; margin-bottom:6px;}
-  .modal-section p{font-size:14px; color:var(--ink); line-height:1.65;}
-  .modal-divider{height:1px; background:var(--line); margin:16px 0;}
-  .creator-row{display:flex; align-items:center; gap:14px; margin-top:16px;}
-  .creator-avatar{
-    width:52px; height:52px; border-radius:50%; background:var(--d6); flex-shrink:0;
-    display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800;
-    font-size:20px; font-family:'Kanit',sans-serif;
-    box-shadow:0 6px 16px -4px var(--d6);
-    animation:pulse 2.4s ease-in-out infinite;
-  }
-  @keyframes pulse{
-    0%,100%{box-shadow:0 6px 16px -4px var(--d6);}
-    50%{box-shadow:0 6px 28px -2px var(--d6);}
-  }
-  .creator-info{flex:1;}
-  .creator-name{font-size:16px; font-weight:700; color:var(--ink);}
-  .creator-dept{
-    display:inline-block; margin-top:4px; font-size:12px; font-weight:600;
-    color:var(--d6); background:var(--d6-soft); border-radius:8px; padding:2px 10px;
-  }
-
-  /* ---------- NAVBAR ABOUT BUTTON ---------- */
-  .about-btn{
-    background:none; color:var(--ink-soft); font-size:13px; font-weight:600;
-    padding:6px 12px; border-radius:8px; display:flex; align-items:center; gap:5px;
-    transition:.15s;
-  }
-  .about-btn:hover{background:#EEF4FF; color:var(--blue-deep);}
-  .about-btn svg{width:15px; height:15px;}
-
-  /* ---------- CONTEXT MENU ---------- */
-  .ctx-menu{
-    position:fixed; background:#fff; border:1px solid var(--line);
-    border-radius:12px; padding:6px; z-index:200; min-width:140px;
-    box-shadow:0 10px 30px -8px rgba(11,95,255,.25);
-    animation:ctxIn .15s cubic-bezier(.22,1,.36,1);
-  }
-  @keyframes ctxIn{from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)}}
-  .ctx-item{
-    display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px;
-    font-size:13.5px; font-weight:600; cursor:pointer; color:var(--ink);
-    transition:.1s; border:none; background:none; width:100%; text-align:left;
-  }
-  .ctx-item:hover{background:#EEF4FF; color:var(--blue-deep);}
-  .ctx-item.danger{color:#C1502E;}
-  .ctx-item.danger:hover{background:#FBE6E2; color:#C1502E;}
-  .ctx-item svg{width:15px; height:15px; flex-shrink:0;}
-
-  /* ---------- EDIT MODE ---------- */
-  .edit-bar{
-    display:none; align-items:center; gap:8px; padding:8px 14px;
-    background:#FFF9E6; border-top:1px solid #F2D66E;
-  }
-  .edit-bar.show{display:flex;}
-  .edit-bar .edit-label{font-size:12.5px; color:#7A5C00; font-weight:600; flex:1;}
-  .edit-bar .cancel-edit{
-    background:none; border:1px solid #D4A800; color:#7A5C00; font-size:12.5px;
-    font-weight:600; padding:4px 10px; border-radius:8px; cursor:pointer;
-  }
-  .cancel-edit:hover{background:#FFF0C0;}
-  .bubble.edited::after{
-    content:" (แก้ไขแล้ว)";font-size:10.5px; color:rgba(255,255,255,.65); font-style:italic;
-  }
-  .msg-row:not(.me) .bubble.edited::after{color:var(--ink-soft);}
-
-  /* ---------- FLOATING STARS ANIMATION (login) ---------- */
-  .star-bg{
-    position:absolute; inset:0; overflow:hidden; pointer-events:none; border-radius:20px;
-  }
-  .star{
-    position:absolute; border-radius:50%; background:var(--blue); opacity:.06;
-    animation:float linear infinite;
-  }
-  @keyframes float{
-    0%{transform:translateY(0) rotate(0deg); opacity:.06;}
-    50%{opacity:.1;}
-    100%{transform:translateY(-120px) rotate(360deg); opacity:0;}
-  }
-
-  /* ---------- ANIMATED TOPBAR DOT ---------- */
-  .brand .dot{animation:blink 1.8s ease-in-out infinite;}
-  @keyframes blink{0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)}}
-
-  /* ---------- MSG ENTER ANIMATION ---------- */
-  .msg-row{animation:msgIn .25s cubic-bezier(.22,1,.36,1);}
-  @keyframes msgIn{from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)}}
-
-  /* ---------- DEPT CARD STAGGER ---------- */
-  .dept-card{animation:cardIn .35s cubic-bezier(.22,1,.36,1) both;}
-  @keyframes cardIn{from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)}}
-
-  /* ---------- ONLINE STATUS ---------- */
-  .online-count{
-    font-size:12px; color:#1E8F5E; font-weight:600; display:flex; align-items:center; gap:5px;
-    white-space:nowrap;
-  }
-  .online-count .dotpulse{
-    width:8px; height:8px; border-radius:50%; background:#22c55e; flex-shrink:0;
-    box-shadow:0 0 0 0 rgba(34,197,94,.5); animation:pulseDot 1.8s infinite;
-  }
-  @keyframes pulseDot{
-    0%{box-shadow:0 0 0 0 rgba(34,197,94,.5);}
-    70%{box-shadow:0 0 0 6px rgba(34,197,94,0);}
-    100%{box-shadow:0 0 0 0 rgba(34,197,94,0);}
-  }
-  .msg-av{position:relative;}
-  .online-dot{
-    position:absolute; bottom:-1px; right:-1px; width:10px; height:10px; border-radius:50%;
-    background:#22c55e; border:2px solid #fff; box-sizing:content-box;
-  }
-  .online-dot-inline{
-    display:inline-block; width:7px; height:7px; border-radius:50%; background:#22c55e;
-    margin-right:4px; vertical-align:middle; flex-shrink:0;
-  }
-
-  /* ---------- TYPING INDICATOR ---------- */
-  .typing-bar{
-    display:none; padding:6px 16px; font-size:12.5px; color:var(--ink-soft); font-style:italic;
-    background:#fff; border-top:1px solid var(--line);
-  }
-  .typing-bar.show{display:block;}
-
-  /* ---------- MESSAGE REACTIONS ---------- */
-  .reaction-row{display:flex; flex-wrap:wrap; gap:5px; margin-top:1px; max-width:230px;}
-  .msg-row.me .reaction-row{justify-content:flex-end;}
-  .reaction-chip{
-    display:flex; align-items:center; gap:3px; background:#F1F5FB; border:1px solid var(--line);
-    border-radius:999px; padding:2px 8px; font-size:12px; color:var(--ink); cursor:pointer; transition:.15s;
-  }
-  .reaction-chip:hover{background:#E3EDFF;}
-  .reaction-chip.mine{background:var(--ds,#E3EDFF); border-color:var(--dc,var(--blue)); color:var(--dc,var(--blue-deep)); font-weight:700;}
-  .reaction-chip .rcount{font-size:11px;}
-  .reaction-add{
-    background:#F1F5FB; border:1px solid var(--line); border-radius:999px; padding:2px 9px; font-size:12px;
+    dis    background:#F1F5FB; border:1px solid var(--line); border-radius:999px; padding:2px 9px; font-size:12px;
     color:var(--ink-soft); cursor:pointer; transition:.15s;
   }
   .reaction-add:hover{background:#E3EDFF; color:var(--blue-deep);}
