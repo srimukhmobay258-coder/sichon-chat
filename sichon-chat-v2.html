@@ -1957,15 +1957,15 @@ function handleIdCardPic(e){
     const img = new Image();
     img.onload = ()=>{
       // ย่อภาพให้พอดี กันไม่ให้ doc ผู้ใช้ใน Firestore เกินขีดจำกัด 1MB ต่อเอกสาร
-      const maxW = 700;
+      const maxW = 400;
       const scale = Math.min(1, maxW / img.width);
       const canvas = document.createElement('canvas');
       canvas.width = img.width * scale;
       canvas.height = img.height * scale;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const data = canvas.toDataURL('image/jpeg', 0.7);
-      if(data.length > 700 * 1024){
+      const data = canvas.toDataURL('image/jpeg', 0.5);
+      if(data.length > 400 * 1024){
         alert('รูปบัตรนักศึกษามีขนาดใหญ่เกินไปหลังบีบอัดแล้ว กรุณาถ่ายรูปใหม่ให้ชัดเจนแต่ไม่ต้องความละเอียดสูงมาก');
         return;
       }
