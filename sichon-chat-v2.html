@@ -1895,13 +1895,22 @@ function messagesSignature(){
   const pinnedTally = msgs.filter(m=>m.pinned).length;
   const editedTally = msgs.filter(m=>m.edited).length;
   return msgs.length + ':' + last.id + ':' + reactionTally + ':' + pinnedTally + ':' + editedTally;
-}
+}let lastDeptGridSig = '';
+function renderDeptGridIfChanged(){
+  const s = getSession();
+  const users = getUsers();
+  const me = (s && users[s.id]) || {};
+  const sig = me.verifyStatus + ':' + me.deptId + ':' + Object.keys(users).length;
+  if(sig === lastDeptGridSig) return;
+  lastDeptGridSig = sig;
+  renderDeptGrid();
+  }
 function refreshLiveUI(){
   heartbeat();
   const homeVisible = !document.getElementById('view-home').classList.contains('hidden');
   const roomVisible = !document.getElementById('view-room').classList.contains('hidden');
   if(homeVisible){
-    renderDeptGrid();
+    renderDeptGridIfChanged();
     renderHomeStats();
     renderGlobalBadge();
   }
